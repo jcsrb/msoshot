@@ -3,3 +3,5 @@
 *.syso.tmp
 .DS_Store
 .claude/
+winres/icon.png
+rsrc_windows_*.syso

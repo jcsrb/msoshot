@@ -1,6 +1,6 @@
 module outlook-render
 
-go 1.27.4
+go 1.26.0
 
 require (
 	github.com/go-ole/go-ole v1.3.0

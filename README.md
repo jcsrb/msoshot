@@ -45,11 +45,13 @@ Renders run one at a time; others queue. The app only opens and displays message
 
 ## Install
 
-Build on any OS with Go 1.22 or later. No C compiler is needed:
+Build on any OS with Go 1.26 or later. No C compiler is needed:
 
 ```sh
 ./build.sh      # writes bin/outlook-render-windows-amd64.exe and -arm64.exe
 ```
+
+`build.sh` embeds a manifest, the icon and version info using [go-winres](https://github.com/tc-hib/go-winres), which `go run` downloads on first use. `NO_RESOURCES=1 ./build.sh` skips that step: the exe still works, but has no icon.
 
 Copy the exe that matches your machine to Windows and run it. It's unsigned, so SmartScreen may warn on first run ("More info" → "Run anyway").
 

@@ -63,7 +63,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, usage, api.Version)
 		flag.PrintDefaults()
 	}
-	flag.Parse()
+	args := parseInterspersed(flag.CommandLine, os.Args[1:])
 
 	cli := *check || *renderFile || *headless || *version
 	if cli {
@@ -85,7 +85,7 @@ func main() {
 	case *check:
 		os.Exit(runCheck(renderer))
 	case *renderFile:
-		os.Exit(runRenderFile(renderer, flag.Args(), *query))
+		os.Exit(runRenderFile(renderer, args, *query))
 	}
 
 	path := *cfgPath
@@ -157,6 +157,25 @@ func main() {
 	lis.Stop()
 	if err != nil {
 		fatal(log, err)
+	}
+}
+
+// parseInterspersed parses flags wherever they appear, so
+// "--render-file in.html out.png --query pages=2" works. Go's flag package
+// alone stops at the first non-flag argument. Returns the positional arguments.
+func parseInterspersed(fs *flag.FlagSet, args []string) []string {
+	var positional []string
+	for {
+		_ = fs.Parse(args) // ExitOnError: exits on bad flags
+		rest := fs.Args()
+		if len(rest) == 0 {
+			return positional
+		}
+		if rest[0] == "--" {
+			return append(positional, rest[1:]...)
+		}
+		positional = append(positional, rest[0])
+		args = rest[1:]
 	}
 }
 
