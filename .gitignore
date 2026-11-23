@@ -1,0 +1,5 @@
+/bin/
+*.exe
+*.syso.tmp
+.DS_Store
+.claude/

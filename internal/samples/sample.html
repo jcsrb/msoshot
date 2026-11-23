@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Your weekly garden update</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f0;">
+<!--
+  A made-up newsletter that trips several classic Outlook (Word engine) quirks
+  on purpose, so you can see them in a render:
+   - rgba() background colour is ignored
+   - padding on <a> is ignored (the "button" collapses)
+   - border on <tr> is not drawn
+   - list-style on <ul> is ignored
+   - a font stack whose first font isn't installed falls back to Times New Roman
+-->
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" align="center" style="width:600px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td style="padding:24px;background:rgba(46,125,50,0.9);color:#ffffff;font-size:22px;font-weight:bold;">
+      Greenleaf Gardens: weekly update
+    </td>
+  </tr>
+  <tr style="border-bottom:2px solid #2e7d32;">
+    <td style="padding:24px;font-size:15px;line-height:22px;color:#333333;">
+      <p style="margin:0 0 12px;">Hi Sam,</p>
+      <p style="margin:0 0 12px;">Here is what's growing this week:</p>
+      <ul style="list-style:square;margin:0 0 16px;padding-left:20px;">
+        <li>Tomatoes are ready to pick</li>
+        <li>Basil needs a trim</li>
+        <li>Plant garlic before the first frost</li>
+      </ul>
+      <p style="margin:0 0 20px;font-family:'Some Font Nobody Has',Arial,sans-serif;">
+        This paragraph names a font that isn't installed first.
+      </p>
+      <a href="https://example.com/garden" style="display:inline-block;padding:12px 24px;background:#2e7d32;color:#ffffff;text-decoration:none;border-radius:4px;">View your garden</a>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:16px 24px;font-size:12px;color:#888888;">
+      You get this because you signed up at example.com. <a href="https://example.com/unsubscribe" style="color:#888888;">Unsubscribe</a>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>outlook-render</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #667085; --line: #e4e7ec;
+    --accent: #2f5bd3; --accent-text: #ffffff; --ok: #12805c; --warn: #b54708; --bad: #c4320a;
+    --ok-bg: #e7f6ef; --warn-bg: #fef4e6; --bad-bg: #fdeceb; --code: #f2f4f7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161b; --card: #1c1f26; --text: #e6e8ec; --muted: #98a2b3; --line: #2c313b;
+      --accent: #6d8ff0; --accent-text: #0e1220; --ok: #4cc79a; --warn: #f5a35c; --bad: #f47a6a;
+      --ok-bg: #12291f; --warn-bg: #2e2112; --bad-bg: #321815; --code: #252932;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; padding: 16px 20px 8px; }
+  header h1 { font-size: 17px; font-weight: 600; margin: 0; }
+  header .version { color: var(--muted); font-size: 12px; }
+  .pill { margin-left: auto; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.bad { background: var(--bad-bg); color: var(--bad); }
+  main { padding: 8px 20px 20px; display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  section.wide { grid-column: 1 / -1; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
+  dt { color: var(--muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .msg { margin-top: 10px; padding: 8px 10px; border-radius: 6px; font-size: 13px; }
+  .msg.bad { background: var(--bad-bg); color: var(--bad); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  select, input { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 5px 8px; }
+  input[type=number] { width: 90px; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  pre { background: var(--code); border-radius: 6px; padding: 10px; margin: 10px 0 0; font: 12px/1.5 Consolas, ui-monospace, monospace;
+    white-space: pre-wrap; overflow-wrap: anywhere; }
+  code { font: 12px Consolas, ui-monospace, monospace; background: var(--code); padding: 1px 5px; border-radius: 4px; }
+  .muted { color: var(--muted); }
+  .flash { color: var(--ok); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; border-top: 0; }
+  td.num { font-variant-numeric: tabular-nums; }
+  td img { height: 40px; border: 1px solid var(--line); border-radius: 4px; cursor: zoom-in; display: block; }
+  .status-ok { color: var(--ok); } .status-bad { color: var(--bad); }
+  .empty { color: var(--muted); padding: 10px 0 2px; }
+  #overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: none; overflow: auto; padding: 24px; cursor: zoom-out; }
+  #overlay img { display: block; margin: 0 auto; max-width: 100%; background: #fff; }
+  @media (max-width: 720px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>outlook-render</h1><span class="version" id="version"></span>
+  <span class="pill warn" id="pill">Starting…</span>
+</header>
+<main>
+  <section>
+    <h2>Outlook</h2>
+    <dl id="outlook"></dl>
+    <div id="outlook-msg"></div>
+  </section>
+
+  <section>
+    <h2>Server</h2>
+    <dl>
+      <dt>Status</dt><dd id="srv-state">…</dd>
+      <dt>Token</dt><dd><code id="token">…</code></dd>
+    </dl>
+    <div class="row">
+      <button id="copy-token">Copy token</button>
+      <button id="new-token">New token</button>
+      <span class="flash" id="token-flash"></span>
+    </div>
+    <div class="row">
+      <label for="host" class="muted">Listen on</label>
+      <select id="host"></select>
+      <input id="port" type="number" min="1" max="65535" aria-label="Port">
+      <button id="apply">Apply</button>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="autostart"> Start at login</label>
+    </div>
+    <div id="srv-msg"></div>
+  </section>
+
+  <section class="wide">
+    <h2>Try it</h2>
+    <div class="row" style="margin-top:0">
+      <button class="primary" id="test">Render sample email</button>
+      <span class="muted" id="test-msg">Opens a made-up newsletter in Outlook and shows the screenshot below.</span>
+    </div>
+    <pre id="curl"></pre>
+    <div class="row"><button id="copy-curl">Copy curl command</button><span class="flash" id="curl-flash"></span></div>
+  </section>
+
+  <section class="wide">
+    <h2>Recent renders</h2>
+    <table>
+      <thead><tr><th>Time</th><th>From</th><th>Subject</th><th>Result</th><th>Took</th><th></th></tr></thead>
+      <tbody id="recent"></tbody>
+    </table>
+    <div class="empty" id="recent-empty">Nothing rendered yet.</div>
+  </section>
+</main>
+<div id="overlay"><img id="overlay-img" alt="Full-size render"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let editing = false;   // don't overwrite the address picker while the user is choosing
+let lastRecentKey = "";
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {}) });
+  return r.json();
+}
+function flash(id, text) {
+  $(id).textContent = text;
+  setTimeout(() => { $(id).textContent = ""; }, 2000);
+}
+function yesNo(v) { return v === true ? "yes" : v === false ? "no" : "—"; }
+
+function renderOutlook(h) {
+  const rows = [];
+  if (h.renderer === "fake") {
+    rows.push(["Renderer", "fake (development mode)"]);
+  } else {
+    rows.push(["Classic Outlook", h.classic_installed ? "installed" : "not found"]);
+    rows.push(["Running", h.outlook_running ? (h.outlook_com ? "yes, reachable" : "yes, not reachable") : "no"]);
+    if (h.outlook_version) rows.push(["Version", h.outlook_version]);
+    if (h.dpi) rows.push(["Display scale", `${Math.round(h.dpi / 96 * 100)}% (${h.dpi} DPI)`]);
+    rows.push(["Desktop session", yesNo(h.interactive_session)]);
+    rows.push(["Admin", yesNo(h.elevated)]);
+  }
+  $("outlook").innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+  $("outlook-msg").innerHTML = h.error ? `<div class="msg bad">${esc(h.error)}</div>`
+    : h.note ? `<div class="msg warn">${esc(h.note)}</div>` : "";
+}
+
+function renderServer(s, addresses) {
+  const listening = s.state === "listening";
+  $("srv-state").innerHTML = listening
+    ? `<span class="status-ok">Listening on ${esc(s.addr)}</span>`
+    : `<span class="status-bad">${esc(s.state)}</span> <span class="muted">(${esc(s.addr)})</span>`;
+  $("token").textContent = s.token_hint;
+  if (!editing) {
+    const opts = addresses.map(a => `<option value="${esc(a.ip)}">${esc(a.ip)} — ${esc(a.interface)}</option>`);
+    if (!addresses.some(a => a.ip === s.host)) opts.push(`<option value="${esc(s.host)}">${esc(s.host)} — not available now</option>`);
+    $("host").innerHTML = opts.join("");
+    $("host").value = s.host;
+    $("port").value = s.port;
+  }
+}
+
+function renderRecent(list) {
+  const key = list.map(e => e.id).join(",");
+  if (key === lastRecentKey) return;
+  lastRecentKey = key;
+  $("recent-empty").style.display = list.length ? "none" : "block";
+  $("recent").innerHTML = list.map(e => {
+    const t = new Date(e.time).toLocaleTimeString();
+    const result = e.status === 200
+      ? `<span class="status-ok">OK</span>${e.info && e.info.scale ? ` <span class="muted">@${esc(e.info.scale)}×</span>` : ""}`
+      : `<span class="status-bad" title="${esc(e.error)}">${esc(e.status)} ${esc((e.error || "").slice(0, 60))}</span>`;
+    const img = e.has_image ? `<img src="/ui/image/${e.id}" data-id="${e.id}" alt="Render ${e.id}">` : "";
+    return `<tr><td class="num">${esc(t)}</td><td>${esc(e.client)}</td><td>${esc(e.subject || "—")}</td>
+      <td>${result}</td><td class="num">${(e.duration_ms / 1000).toFixed(1)} s</td><td>${img}</td></tr>`;
+  }).join("");
+}
+
+async function refresh() {
+  try {
+    const s = await (await fetch("/ui/status")).json();
+    $("version").textContent = "v" + s.version;
+    const h = s.health || {};
+    const pill = $("pill");
+    if (s.busy) { pill.className = "pill warn"; pill.textContent = "Rendering…"; }
+    else if (h.ok === false || s.server.state !== "listening") { pill.className = "pill bad"; pill.textContent = "Needs attention"; }
+    else { pill.className = "pill ok"; pill.textContent = "Ready"; }
+    renderOutlook(h);
+    renderServer(s.server, s.addresses);
+    $("curl").textContent = s.curl;
+    if (typeof s.autostart === "boolean") $("autostart").checked = s.autostart;
+    else $("autostart").parentElement.style.display = "none";
+    renderRecent(s.recent || []);
+  } catch (e) {
+    $("pill").className = "pill bad"; $("pill").textContent = "Disconnected";
+  }
+}
+
+let savedPick = "";
+for (const id of ["host", "port"]) {
+  $(id).addEventListener("focus", () => { editing = true; savedPick = $("host").value + ":" + $("port").value; });
+  // Resume live updates if the user leaves the picker without changing anything.
+  $(id).addEventListener("blur", () => setTimeout(() => {
+    const active = document.activeElement && ["host", "port", "apply"].includes(document.activeElement.id);
+    if (!active && $("host").value + ":" + $("port").value === savedPick) editing = false;
+  }, 200));
+}
+$("apply").addEventListener("click", async () => {
+  const r = await post("/ui/settings", { host: $("host").value, port: Number($("port").value) });
+  editing = false;
+  if (!r.ok) alertBox(r.error);
+  refresh();
+});
+$("copy-token").addEventListener("click", async () => flash("token-flash", (await post("/ui/copy", {what: "token"})).ok ? "Copied" : "Copy failed"));
+$("copy-curl").addEventListener("click", async () => flash("curl-flash", (await post("/ui/copy", {what: "curl"})).ok ? "Copied (with the full token)" : "Copy failed"));
+$("new-token").addEventListener("click", async () => {
+  if (!$("new-token").dataset.confirm) {
+    $("new-token").dataset.confirm = "1"; $("new-token").textContent = "Click again to replace";
+    setTimeout(() => { delete $("new-token").dataset.confirm; $("new-token").textContent = "New token"; }, 3000);
+    return;
+  }
+  delete $("new-token").dataset.confirm; $("new-token").textContent = "New token";
+  const r = await post("/ui/token/new");
+  flash("token-flash", r.ok ? "New token saved; update your clients" : r.error);
+  refresh();
+});
+$("autostart").addEventListener("change", async (e) => {
+  const r = await post("/ui/autostart", { enabled: e.target.checked });
+  if (!r.ok) { alertBox(r.error); refresh(); }
+});
+$("test").addEventListener("click", async () => {
+  $("test").disabled = true; $("test-msg").textContent = "Rendering… an Outlook window will open for a moment.";
+  try {
+    const r = await post("/ui/test");
+    $("test-msg").textContent = r.ok ? "Done. Click the thumbnail below to see it full size." : "Failed: " + r.error;
+    if (r.ok) { await refresh(); openImage(r.id); }
+  } finally { $("test").disabled = false; refresh(); }
+});
+$("recent").addEventListener("click", (e) => { if (e.target.dataset.id) openImage(e.target.dataset.id); });
+$("overlay").addEventListener("click", () => $("overlay").style.display = "none");
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("overlay").style.display = "none"; });
+function openImage(id) { $("overlay-img").src = "/ui/image/" + id; $("overlay").style.display = "block"; }
+function alertBox(text) {
+  $("srv-msg").innerHTML = `<div class="msg bad">${esc(text)}</div>`;
+  setTimeout(() => { $("srv-msg").innerHTML = ""; }, 8000);
+}
+
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>
