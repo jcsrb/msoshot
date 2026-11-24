@@ -280,15 +280,18 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 			// A scroll usually moves less than one screen; drop the rows
 			// already captured on the previous page.
 			raw := shot
-			trimmed, n := render.TrimOverlap(prevRaw, shot)
+			trimmed, n, cut := render.TrimOverlap(prevRaw, shot)
 			prevRaw = raw
 			overlaps = append(overlaps, fmt.Sprint(n))
 			if n > 0 {
 				// The pages continue each other exactly, so join them
-				// seamlessly. The grey rule only marks seams where no
+				// seamlessly, minus the pane border at the bottom of the
+				// previous page. The grey rule only marks seams where no
 				// overlap was found and something may be missing.
 				last := len(shots) - 1
-				shots[last] = render.Join([]*image.RGBA{shots[last], trimmed})
+				b := shots[last].Bounds()
+				above := render.Crop(shots[last], image.Rect(b.Min.X, b.Min.Y, b.Max.X, b.Max.Y-cut))
+				shots[last] = render.Join([]*image.RGBA{above, trimmed})
 			} else {
 				shots = append(shots, shot)
 			}

@@ -42,13 +42,18 @@ func TestTrimOverlap(t *testing.T) {
 	const w, h, frame = 120, 200, 3
 	a := page(doc, 0, w, h, frame)
 	b := page(doc, 170, w, h, frame) // scrolled 170 of 200 rows: 30 overlap
-	got, n := TrimOverlap(a, b)
-	if n != 30 || got.Bounds().Dy() != 170 {
-		t.Fatalf("removed %d rows, height %d; want 30 and 170", n, got.Bounds().Dy())
+	got, n, cut := TrimOverlap(a, b)
+	if cut != frame || n != 30-frame {
+		t.Fatalf("removed %d, cut %d; want %d and %d", n, cut, 30-frame, frame)
 	}
-	// The first kept row continues where a left off.
-	if got.RGBAAt(0, 0) != b.RGBAAt(0, 30) {
-		t.Fatal("cropped from the wrong row")
+	// prev without its bottom frame, then got, must be the document itself.
+	joined := Join([]*image.RGBA{Crop(a, image.Rect(0, 0, w, h-cut)), got})
+	for y := frame; y < joined.Bounds().Dy()-frame; y++ {
+		for x := 0; x < w; x++ {
+			if joined.RGBAAt(x, y) != doc.RGBAAt(x, y) {
+				t.Fatalf("joined row %d differs from the document", y)
+			}
+		}
 	}
 }
 
@@ -56,7 +61,7 @@ func TestTrimOverlapNone(t *testing.T) {
 	doc := document(120, 1000)
 	a := page(doc, 0, 120, 200, 3)
 	b := page(doc, 200, 120, 200, 3) // exact page step: nothing repeated
-	if _, n := TrimOverlap(a, b); n != 0 {
+	if _, n, _ := TrimOverlap(a, b); n != 0 {
 		t.Fatalf("removed %d rows, want 0", n)
 	}
 }
@@ -66,7 +71,7 @@ func TestTrimOverlapIgnoresBlank(t *testing.T) {
 	// Both captures meet inside the blank band only; it must not count.
 	a := page(doc, 140, 120, 200, 0) // ends at 340 (inside blank 300..360)
 	b := page(doc, 320, 120, 200, 0) // starts at 320
-	if _, n := TrimOverlap(a, b); n != 0 {
+	if _, n, _ := TrimOverlap(a, b); n != 0 {
 		t.Fatalf("removed %d rows of blank space, want 0", n)
 	}
 }
@@ -74,7 +79,7 @@ func TestTrimOverlapIgnoresBlank(t *testing.T) {
 func TestTrimOverlapSizeMismatch(t *testing.T) {
 	a := image.NewRGBA(image.Rect(0, 0, 10, 50))
 	b := image.NewRGBA(image.Rect(0, 0, 11, 50))
-	if got, n := TrimOverlap(a, b); n != 0 || got != b {
+	if got, n, _ := TrimOverlap(a, b); n != 0 || got != b {
 		t.Fatal("expected no change for different sizes")
 	}
 }
