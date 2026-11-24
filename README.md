@@ -165,7 +165,7 @@ examples/render.sh internal/samples/sample.html outlook.png "Weekly update" "pag
 
 ## Develop
 
-Everything except the Outlook automation runs on macOS and Linux:
+Everything except the Outlook automation runs on macOS (and on Linux with Wails' GTK4/WebKitGTK development packages installed):
 
 ```sh
 go test ./...
@@ -182,7 +182,7 @@ GOOS=windows go vet ./...
 | `internal/render`, `internal/eml` | Options, image helpers, `.eml` wrapping |
 | `internal/listener`, `internal/config` | Address handling, retries, settings |
 
-CI runs the tests on Linux and Windows. Pushing a `v*` tag builds both exes and creates a draft release.
+CI runs the tests on macOS and Windows. Pushing a `v*` tag builds both exes and creates a draft release.
 
 ## Notes and limits
 
