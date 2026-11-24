@@ -253,6 +253,8 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 	}
 
 	var shots []*image.RGBA
+	var prevRaw *image.RGBA // last capture before trimming, for comparisons
+	var overlaps []string
 	captureMethod, scrollMethod := "", ""
 	for page := 1; page <= opt.Pages; page++ {
 		full, method, err := captureWindow(win, render.LooksBlank)
@@ -266,8 +268,22 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 			area := br.toImage().Sub(image.Pt(int(wr.Left), int(wr.Top)))
 			shot = render.Crop(full, area)
 		}
-		if len(shots) > 0 && render.SamePixels(shot, shots[len(shots)-1]) {
-			break // scrolling reached the end
+		if prevRaw != nil {
+			if render.SamePixels(shot, prevRaw) {
+				break // scrolling reached the end
+			}
+			// A scroll usually moves a little less than one screen; drop
+			// the rows already captured on the previous page.
+			raw := shot
+			var n int
+			shot, n = render.TrimOverlap(prevRaw, shot)
+			prevRaw = raw
+			overlaps = append(overlaps, fmt.Sprint(n))
+			if shot.Bounds().Dy() == 0 {
+				break
+			}
+		} else {
+			prevRaw = shot
 		}
 		shots = append(shots, shot)
 		if page == opt.Pages || ctx.Err() != nil {
@@ -297,6 +313,9 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 	}
 	if scrollMethod != "" {
 		info["scroll_method"] = scrollMethod
+	}
+	if len(overlaps) > 0 {
+		info["overlap_rows"] = strings.Join(overlaps, ",")
 	}
 	return &render.Result{PNG: png, Info: info}, nil
 }
