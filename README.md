@@ -74,7 +74,11 @@ Then:
 
 ## The dashboard
 
-Click the tray icon to open it. It shows:
+Click the tray icon to open it.
+
+![The msoshot dashboard on Windows](docs/dashboard.png)
+
+It shows:
 
 - **Outlook:** installed and reachable, version, display scale, desktop session, admin.
 - **Server:** the listening address and token, buttons to copy or replace the token, and an address picker.
