@@ -21,11 +21,16 @@ func Crop(img *image.RGBA, r image.Rectangle) *image.RGBA {
 }
 
 // Stack places images top to bottom, separated by a thin grey rule.
-func Stack(parts []*image.RGBA) *image.RGBA {
+func Stack(parts []*image.RGBA) *image.RGBA { return stack(parts, 4) }
+
+// Join places images top to bottom with no gap, for pages whose overlap was
+// removed so that they continue each other exactly.
+func Join(parts []*image.RGBA) *image.RGBA { return stack(parts, 0) }
+
+func stack(parts []*image.RGBA, gap int) *image.RGBA {
 	if len(parts) == 1 {
 		return parts[0]
 	}
-	const gap = 4
 	w, h := 0, gap*(len(parts)-1)
 	for _, p := range parts {
 		w = max(w, p.Bounds().Dx())

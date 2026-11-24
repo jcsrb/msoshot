@@ -52,7 +52,7 @@ func Run(o Options) error {
 		Name:      "dashboard",
 		Title:     "msoshot",
 		Width:     860,
-		Height:    760,
+		Height:    820,
 		MinWidth:  520,
 		MinHeight: 420,
 		URL:       "/",

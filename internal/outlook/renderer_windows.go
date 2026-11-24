@@ -255,6 +255,7 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 	var shots []*image.RGBA
 	var prevRaw *image.RGBA // last capture before trimming, for comparisons
 	var overlaps []string
+	pages := 0 // screens captured (some may be joined into one part)
 	captureMethod, scrollMethod := "", ""
 	for page := 1; page <= opt.Pages; page++ {
 		full, method, err := captureWindow(win, render.LooksBlank)
@@ -268,24 +269,31 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 			area := br.toImage().Sub(image.Pt(int(wr.Left), int(wr.Top)))
 			shot = render.Crop(full, area)
 		}
-		if prevRaw != nil {
-			if render.SamePixels(shot, prevRaw) {
-				break // scrolling reached the end
-			}
-			// A scroll usually moves a little less than one screen; drop
-			// the rows already captured on the previous page.
+		if prevRaw != nil && render.SamePixels(shot, prevRaw) {
+			break // scrolling reached the end
+		}
+		switch {
+		case prevRaw == nil:
+			prevRaw = shot
+			shots = append(shots, shot)
+		default:
+			// A scroll usually moves less than one screen; drop the rows
+			// already captured on the previous page.
 			raw := shot
-			var n int
-			shot, n = render.TrimOverlap(prevRaw, shot)
+			trimmed, n := render.TrimOverlap(prevRaw, shot)
 			prevRaw = raw
 			overlaps = append(overlaps, fmt.Sprint(n))
-			if shot.Bounds().Dy() == 0 {
-				break
+			if n > 0 {
+				// The pages continue each other exactly, so join them
+				// seamlessly. The grey rule only marks seams where no
+				// overlap was found and something may be missing.
+				last := len(shots) - 1
+				shots[last] = render.Join([]*image.RGBA{shots[last], trimmed})
+			} else {
+				shots = append(shots, shot)
 			}
-		} else {
-			prevRaw = shot
 		}
-		shots = append(shots, shot)
+		pages++
 		if page == opt.Pages || ctx.Err() != nil {
 			break
 		}
@@ -305,7 +313,7 @@ func (r *Renderer) renderOnce(ctx context.Context, path string, opt render.Optio
 		"crop":            crop,
 		"dpi":             fmt.Sprint(dpi),
 		"scale":           fmt.Sprintf("%.2f", scale),
-		"pages":           fmt.Sprint(len(shots)),
+		"pages":           fmt.Sprint(pages),
 		"image_width":     fmt.Sprint(final.Bounds().Dx()),
 		"image_height":    fmt.Sprint(final.Bounds().Dy()),
 		"window_width":    fmt.Sprint(winRect.Right - winRect.Left),

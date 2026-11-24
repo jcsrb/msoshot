@@ -119,7 +119,7 @@ Query options:
 | `width`  | `1000`  | Window width in logical pixels (multiplied by the display scale). |
 | `height` | `900`   | Window height in logical pixels. The window is kept within the screen. |
 | `crop`   | `body`  | `body` captures the message body only. `window` captures the whole Outlook window. |
-| `pages`  | `1`     | Scroll and capture up to N screens, stacked into one PNG with a grey rule between them. Stops early at the end of the message. |
+| `pages`  | `1`     | Scroll and capture up to N screens, stitched into one tall PNG. Stops early at the end of the message. |
 | `full`   | off     | `full=1` is shorthand for `pages=10`. |
 
 The response is `200`, `image/png`, plus headers such as:
@@ -195,7 +195,7 @@ CI runs the tests on macOS and Windows. Pushing a `v*` tag builds both exes and 
 - **Remote images** are blocked by Outlook's default privacy setting, so they render as placeholders. Images embedded in the `.eml` (`cid:`) display.
 - **A window pops up during a render.** An Outlook window appears for a second or two. If capturing in the background returns a black image, the app brings the window to the front and copies the screen.
 - **Very tall images** (`full=1`) get scaled down by most viewers and by AI models reading screenshots. A small `pages` value, such as 2 or 3, is usually more useful.
-- **Scrolled pages** are stitched by finding the rows that repeat between screens and dropping them. `X-Render-Overlap-Rows` reports how many rows were removed at each seam; a `0` means no overlap was found there.
+- **Scrolled pages** are stitched by finding the rows that repeat between screens and dropping them, so the pages join seamlessly. `X-Render-Overlap-Rows` reports how many rows were removed at each seam. A grey rule appears only at seams where no overlap was found (`0`), where content may be missing or repeated.
 
 ## Licence
 
