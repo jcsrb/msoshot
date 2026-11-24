@@ -2,6 +2,8 @@ module github.com/jcsrb/msoshot
 
 go 1.26.0
 
+toolchain go1.27.4
+
 require (
 	github.com/go-ole/go-ole v1.3.0
 	github.com/wailsapp/wails/v3 v3.1.0
