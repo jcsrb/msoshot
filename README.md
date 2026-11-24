@@ -1,3 +1,5 @@
+<img src="docs/icon.png" width="96" alt="" align="right">
+
 # msoshot
 
 A small Windows tray app that opens an email in **classic Outlook**, screenshots it and sends back a PNG over HTTP. You can check how an email change looks in Outlook in seconds, without sending anything.
@@ -24,6 +26,10 @@ Classic Outlook for Windows draws HTML email with Microsoft Word's layout engine
 - Fonts are not inherited into nested tables.
 - If the first font in a font stack isn't installed, the whole stack is ignored and the text falls back to Times New Roman.
 - Widths come from `width=` attributes and `<!--[if mso]>` tables.
+
+Here is the built-in sample newsletter as classic Outlook draws it. The coloured header band is gone, and the "View your garden" button has lost its padding:
+
+![The sample email rendered by classic Outlook](docs/sample-render.png)
 
 Hosted services such as Litmus and Email on Acid solve this by running real clients on virtual machines. This tool does the same for one client, on a Windows machine you already have. It works because classic Outlook can open a `.eml` file directly with the same engine, so nothing needs to be delivered.
 

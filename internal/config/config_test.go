@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -19,7 +20,8 @@ func TestLoadCreatesWithToken(t *testing.T) {
 	if err != nil || again.Token != c.Token {
 		t.Fatal("token not persisted")
 	}
-	if info, _ := os.Stat(path); info.Mode().Perm() != 0o600 {
+	// Windows has no Unix permission bits; %AppData% is protected per user.
+	if info, _ := os.Stat(path); runtime.GOOS != "windows" && info.Mode().Perm() != 0o600 {
 		t.Errorf("config permissions %v", info.Mode().Perm())
 	}
 }
