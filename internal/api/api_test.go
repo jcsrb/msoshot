@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"outlook-render/internal/activity"
-	"outlook-render/internal/render"
+	"github.com/jcsrb/outlook-render/internal/activity"
+	"github.com/jcsrb/outlook-render/internal/render"
 )
 
 const token = "test-token-0123456789"

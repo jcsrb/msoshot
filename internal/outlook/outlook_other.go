@@ -8,7 +8,7 @@ import (
 	"errors"
 	"log/slog"
 
-	"outlook-render/internal/render"
+	"github.com/jcsrb/outlook-render/internal/render"
 )
 
 // New is only implemented on Windows.

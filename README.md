@@ -9,7 +9,7 @@ curl -X POST 'http://my-laptop:8787/render?subject=Test' \
   --data-binary @email.html -o outlook.png
 ```
 
-> **Status: early.** The HTTP API, the dashboard and the image handling are tested on macOS. The Windows exe builds and passes `go vet`, but the Outlook automation hasn't been run yet. The untested parts are opening the message, finding its window and capturing it. Expect fixes after the first real runs.
+> **Status: early.** Tested end to end with classic Outlook (Microsoft 365, version 16) on Windows 11 at 150% scaling. Other Outlook versions and setups haven't been tried yet; issues and reports are welcome.
 
 ## Why
 
@@ -45,7 +45,9 @@ Renders run one at a time; others queue. The app only opens and displays message
 
 ## Install
 
-Build on any OS with Go 1.26 or later. No C compiler is needed:
+Download `outlook-render-windows-amd64.exe` (or `-arm64.exe` for ARM laptops) from [Releases](https://github.com/jcsrb/outlook-render/releases) and run it. It's unsigned, so SmartScreen may warn on first run ("More info" → "Run anyway"). `SHA256SUMS.txt` lists the checksums.
+
+Or build it yourself on any OS with Go 1.26 or later. No C compiler is needed:
 
 ```sh
 ./build.sh      # writes bin/outlook-render-windows-amd64.exe and -arm64.exe
@@ -53,7 +55,7 @@ Build on any OS with Go 1.26 or later. No C compiler is needed:
 
 `build.sh` embeds a manifest, the icon and version info using [go-winres](https://github.com/tc-hib/go-winres), which `go run` downloads on first use. `NO_RESOURCES=1 ./build.sh` skips that step: the exe still works, but has no icon.
 
-Copy the exe that matches your machine to Windows and run it. It's unsigned, so SmartScreen may warn on first run ("More info" → "Run anyway").
+Then:
 
 1. **Check first.** In a terminal, run `outlook-render.exe --check`. It prints what the app sees: whether classic Outlook is installed and reachable, the display scale, and whether this is a desktop session.
 2. **Try one render without the network:**
@@ -178,6 +180,8 @@ GOOS=windows go vet ./...
 | `internal/render`, `internal/eml` | Options, image helpers, `.eml` wrapping |
 | `internal/listener`, `internal/config` | Address handling, retries, settings |
 
+CI runs the tests on Linux and Windows. Pushing a `v*` tag builds both exes and creates a draft release.
+
 ## Notes and limits
 
 - **Remote images** are blocked by Outlook's default privacy setting, so they render as placeholders. Images embedded in the `.eml` (`cid:`) display.
@@ -187,4 +191,4 @@ GOOS=windows go vet ./...
 
 ## Licence
 
-MIT
+[MIT](LICENSE). Not affiliated with Microsoft. Outlook is a trademark of Microsoft Corporation.

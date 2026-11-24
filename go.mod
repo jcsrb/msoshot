@@ -1,4 +1,4 @@
-module outlook-render
+module github.com/jcsrb/outlook-render
 
 go 1.26.0
 

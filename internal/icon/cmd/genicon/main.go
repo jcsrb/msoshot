@@ -4,7 +4,7 @@ package main
 import (
 	"os"
 
-	"outlook-render/internal/icon"
+	"github.com/jcsrb/outlook-render/internal/icon"
 )
 
 func main() {

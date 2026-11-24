@@ -23,7 +23,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 
-	"outlook-render/internal/render"
+	"github.com/jcsrb/outlook-render/internal/render"
 )
 
 // Renderer drives classic Outlook. All COM and window work happens on one

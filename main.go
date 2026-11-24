@@ -17,16 +17,16 @@ import (
 	"sync"
 	"time"
 
-	"outlook-render/internal/activity"
-	"outlook-render/internal/api"
-	"outlook-render/internal/config"
-	"outlook-render/internal/dashboard"
-	"outlook-render/internal/eml"
-	"outlook-render/internal/listener"
-	"outlook-render/internal/outlook"
-	"outlook-render/internal/render"
-	"outlook-render/internal/ui"
-	"outlook-render/internal/winconsole"
+	"github.com/jcsrb/outlook-render/internal/activity"
+	"github.com/jcsrb/outlook-render/internal/api"
+	"github.com/jcsrb/outlook-render/internal/config"
+	"github.com/jcsrb/outlook-render/internal/dashboard"
+	"github.com/jcsrb/outlook-render/internal/eml"
+	"github.com/jcsrb/outlook-render/internal/listener"
+	"github.com/jcsrb/outlook-render/internal/outlook"
+	"github.com/jcsrb/outlook-render/internal/render"
+	"github.com/jcsrb/outlook-render/internal/ui"
+	"github.com/jcsrb/outlook-render/internal/winconsole"
 )
 
 const usage = `outlook-render %s: renders emails in classic Outlook and returns screenshots.

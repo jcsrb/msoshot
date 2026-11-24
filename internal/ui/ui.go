@@ -11,7 +11,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 
-	"outlook-render/internal/icon"
+	"github.com/jcsrb/outlook-render/internal/icon"
 )
 
 type Options struct {

@@ -4,6 +4,8 @@
 # exe, and an embedded manifest (per-monitor-v2 DPI awareness, run as invoker,
 # common controls v6), version info and icon.
 #
+# The version comes from VERSION, else the latest git tag (v1.2.3), else "dev".
+#
 # The manifest and icon are compiled into .syso files by go-winres
 # (github.com/tc-hib/go-winres), fetched by `go run` on first use.
 # Set NO_RESOURCES=1 to skip that step (the app still works; Wails sets DPI
@@ -12,15 +14,24 @@ set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p bin
 
+VERSION="${VERSION:-$(git describe --tags --abbrev=0 2>/dev/null || echo dev)}"
+VERSION="${VERSION#v}"
+
 if [ "${NO_RESOURCES:-}" != "1" ]; then
+  # Windows version resources need four numbers; "dev" becomes 0.0.0.0.
+  numeric="0.0.0"
+  if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then numeric="${BASH_REMATCH[0]}"; fi
   go run ./internal/icon/cmd/genicon winres/icon.png
-  go run github.com/tc-hib/go-winres@v0.3.3 make --in winres/winres.json --arch amd64,arm64 --out rsrc
   trap 'rm -f rsrc_windows_*.syso winres/icon.png' EXIT
+  go run github.com/tc-hib/go-winres@v0.3.3 make --in winres/winres.json --arch amd64,arm64 --out rsrc \
+    --product-version "$numeric.0" --file-version "$numeric.0"
 fi
 
 for arch in amd64 arm64; do
   GOOS=windows GOARCH=$arch CGO_ENABLED=0 \
-    go build -tags production -trimpath -buildvcs=false -ldflags "-H windowsgui -s -w" \
+    go build -tags production -trimpath -buildvcs=false \
+      -ldflags "-H windowsgui -s -w -X github.com/jcsrb/outlook-render/internal/api.Version=$VERSION" \
       -o "bin/outlook-render-windows-$arch.exe" .
 done
+echo "built version $VERSION"
 ls -l bin

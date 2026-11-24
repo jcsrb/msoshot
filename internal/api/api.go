@@ -17,12 +17,13 @@ import (
 	"strings"
 	"time"
 
-	"outlook-render/internal/activity"
-	"outlook-render/internal/eml"
-	"outlook-render/internal/render"
+	"github.com/jcsrb/outlook-render/internal/activity"
+	"github.com/jcsrb/outlook-render/internal/eml"
+	"github.com/jcsrb/outlook-render/internal/render"
 )
 
-const Version = "0.1.0"
+// Version is set at build time with -ldflags "-X github.com/jcsrb/outlook-render/internal/api.Version=…".
+var Version = "dev"
 
 type Server struct {
 	Renderer render.Renderer
