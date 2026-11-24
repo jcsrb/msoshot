@@ -17,12 +17,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jcsrb/outlook-render/internal/activity"
-	"github.com/jcsrb/outlook-render/internal/eml"
-	"github.com/jcsrb/outlook-render/internal/render"
+	"github.com/jcsrb/msoshot/internal/activity"
+	"github.com/jcsrb/msoshot/internal/eml"
+	"github.com/jcsrb/msoshot/internal/render"
 )
 
-// Version is set at build time with -ldflags "-X github.com/jcsrb/outlook-render/internal/api.Version=…".
+// Version is set at build time with -ldflags "-X github.com/jcsrb/msoshot/internal/api.Version=…".
 var Version = "dev"
 
 type Server struct {
@@ -75,7 +75,7 @@ func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 	for k, v := range s.Renderer.Health() {
 		out[k] = v
 	}
-	out["server"] = "outlook-render " + Version
+	out["server"] = "msoshot " + Version
 	out["busy"] = s.Renderer.Busy()
 	if s.Status != nil {
 		for k, v := range s.Status() {
@@ -177,7 +177,7 @@ func MessageFromRequest(contentType, querySubject, headerSubject string, body []
 	case "message/rfc822":
 		return body, nil
 	case "text/html":
-		subject := firstNonEmpty(querySubject, headerSubject, "Outlook render test")
+		subject := firstNonEmpty(querySubject, headerSubject, "msoshot test")
 		return eml.Build(body, subject, firstNonEmpty(params["charset"], "utf-8"), time.Now()), nil
 	default:
 		return nil, render.BadRequest("Content-Type must be message/rfc822 (an .eml) or text/html, got %s", mediaType)

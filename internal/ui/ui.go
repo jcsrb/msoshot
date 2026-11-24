@@ -11,7 +11,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 
-	"github.com/jcsrb/outlook-render/internal/icon"
+	"github.com/jcsrb/msoshot/internal/icon"
 )
 
 type Options struct {
@@ -36,13 +36,13 @@ func Run(o Options) error {
 	}
 
 	app := application.New(application.Options{
-		Name:        "outlook-render",
+		Name:        "msoshot",
 		Description: "Renders emails in classic Outlook and returns screenshots",
 		Icon:        icon.PNG(256),
 		Logger:      o.Log,
 		Assets:      application.AssetOptions{Handler: o.Dashboard, DisableLogging: true},
 		SingleInstance: &application.SingleInstanceOptions{
-			UniqueID:               "outlook-render.app",
+			UniqueID:               "msoshot.app",
 			OnSecondInstanceLaunch: func(application.SecondInstanceData) { show() },
 		},
 		Mac: application.MacOptions{ApplicationShouldTerminateAfterLastWindowClosed: false},
@@ -50,7 +50,7 @@ func Run(o Options) error {
 
 	window = app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Name:      "dashboard",
-		Title:     "outlook-render",
+		Title:     "msoshot",
 		Width:     860,
 		Height:    760,
 		MinWidth:  520,
@@ -66,7 +66,7 @@ func Run(o Options) error {
 
 	tray := app.SystemTray.New()
 	tray.SetIcon(icon.PNG(32))
-	tray.SetTooltip("outlook-render")
+	tray.SetTooltip("msoshot")
 	tray.OnClick(show)
 
 	menu := app.NewMenu()

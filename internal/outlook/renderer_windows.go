@@ -23,7 +23,7 @@ import (
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/jcsrb/outlook-render/internal/render"
+	"github.com/jcsrb/msoshot/internal/render"
 )
 
 // Renderer drives classic Outlook. All COM and window work happens on one
@@ -55,7 +55,7 @@ type jobResult struct {
 func New(log *slog.Logger) (render.Renderer, error) {
 	r := &Renderer{
 		log:     log,
-		tempDir: filepath.Join(os.TempDir(), "outlook-render"),
+		tempDir: filepath.Join(os.TempDir(), "msoshot"),
 		jobs:    make(chan job, 16),
 		health:  render.Health{"ok": false, "status": "starting"},
 	}

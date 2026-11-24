@@ -1,4 +1,4 @@
-module github.com/jcsrb/outlook-render
+module github.com/jcsrb/msoshot
 
 go 1.26.0
 

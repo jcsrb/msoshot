@@ -25,14 +25,31 @@ type Config struct {
 
 const DefaultPort = 8787
 
-// DefaultPath is <user config dir>/outlook-render/config.json
-// (on Windows: %AppData%\outlook-render\config.json).
+// DefaultPath is <user config dir>/msoshot/config.json
+// (on Windows: %AppData%\msoshot\config.json).
 func DefaultPath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "outlook-render", "config.json"), nil
+	path := filepath.Join(dir, "msoshot", "config.json")
+	migrate(filepath.Join(dir, "outlook-render", "config.json"), path)
+	return path, nil
+}
+
+// migrate copies settings saved under the project's earlier name, so the
+// token and address survive the rename. It does nothing once path exists.
+func migrate(old, path string) {
+	if _, err := os.Stat(path); err == nil {
+		return
+	}
+	data, err := os.ReadFile(old)
+	if err != nil {
+		return
+	}
+	if os.MkdirAll(filepath.Dir(path), 0o700) == nil {
+		_ = os.WriteFile(path, data, 0o600)
+	}
 }
 
 // Load reads the config, creating it with a fresh random token if missing.

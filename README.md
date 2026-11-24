@@ -1,4 +1,4 @@
-# outlook-render
+# msoshot
 
 A small Windows tray app that opens an email in **classic Outlook**, screenshots it and sends back a PNG over HTTP. You can check how an email change looks in Outlook in seconds, without sending anything.
 
@@ -9,9 +9,11 @@ curl -X POST 'http://my-laptop:8787/render?subject=Test' \
   --data-binary @email.html -o outlook.png
 ```
 
-> **Status: early.** Tested end to end with classic Outlook (Microsoft 365, version 16) on Windows 11 at 150% scaling. Other Outlook versions and setups haven't been tried yet; issues and reports are welcome.
+> **An experiment, with no support.** This was vibe-coded, written mostly by an AI coding assistant, to scratch one itch. It works on the author's machine: classic Outlook (Microsoft 365, version 16) on Windows 11 at 150% scaling. Nothing else has been tried. There's no support and no promise of fixes or updates. Use it at your own risk; issues and pull requests may or may not get a reply.
 
 ## Why
+
+The name comes from `mso`, which is what email developers call Outlook's Word-based engine (as in `<!--[if mso]>`), plus "shot" for screenshot.
 
 Classic Outlook for Windows draws HTML email with Microsoft Word's layout engine. Browser previews and webmail don't show its quirks. For example:
 
@@ -45,22 +47,22 @@ Renders run one at a time; others queue. The app only opens and displays message
 
 ## Install
 
-Download `outlook-render-windows-amd64.exe` (or `-arm64.exe` for ARM laptops) from [Releases](https://github.com/jcsrb/outlook-render/releases) and run it. It's unsigned, so SmartScreen may warn on first run ("More info" → "Run anyway"). `SHA256SUMS.txt` lists the checksums.
+Download `msoshot-windows-amd64.exe` (or `-arm64.exe` for ARM laptops) from [Releases](https://github.com/jcsrb/msoshot/releases) and run it. It's unsigned, so SmartScreen may warn on first run ("More info" → "Run anyway"). `SHA256SUMS.txt` lists the checksums.
 
 Or build it yourself on any OS with Go 1.26 or later. No C compiler is needed:
 
 ```sh
-./build.sh      # writes bin/outlook-render-windows-amd64.exe and -arm64.exe
+./build.sh      # writes bin/msoshot-windows-amd64.exe and -arm64.exe
 ```
 
 `build.sh` embeds a manifest, the icon and version info using [go-winres](https://github.com/tc-hib/go-winres), which `go run` downloads on first use. `NO_RESOURCES=1 ./build.sh` skips that step: the exe still works, but has no icon.
 
 Then:
 
-1. **Check first.** In a terminal, run `outlook-render.exe --check`. It prints what the app sees: whether classic Outlook is installed and reachable, the display scale, and whether this is a desktop session.
+1. **Check first.** In a terminal, run `msoshot.exe --check`. It prints what the app sees: whether classic Outlook is installed and reachable, the display scale, and whether this is a desktop session.
 2. **Try one render without the network:**
    ```
-   outlook-render.exe --render-file email.html out.png
+   msoshot.exe --render-file email.html out.png
    ```
 3. **Start the app normally.** A tray icon and the dashboard appear. On first run it creates a random token and listens on `127.0.0.1:8787`, which is reachable from this machine only.
 
@@ -85,10 +87,10 @@ If the address isn't available yet when the app starts (a VPN still connecting a
 Windows Firewall will ask the first time. VPN adapters are often treated as public networks, so you may need a rule. For example, this allows only Tailscale's address range (run once, as administrator):
 
 ```powershell
-New-NetFirewallRule -DisplayName "outlook-render" -Direction Inbound -Protocol TCP -LocalPort 8787 -RemoteAddress 100.64.0.0/10 -Action Allow
+New-NetFirewallRule -DisplayName "msoshot" -Direction Inbound -Protocol TCP -LocalPort 8787 -RemoteAddress 100.64.0.0/10 -Action Allow
 ```
 
-Settings live in `%AppData%\outlook-render\config.json` and the log in `%LocalAppData%\outlook-render\`. The log holds metadata only, never email content, subjects or the token.
+Settings live in `%AppData%\msoshot\config.json` and the log in `%LocalAppData%\msoshot\`. The log holds metadata only, never email content, subjects or the token.
 
 ## API
 
@@ -155,7 +157,7 @@ Returns JSON with the following:
 `examples/render.sh` posts an HTML or `.eml` file and saves the PNG:
 
 ```sh
-export OUTLOOK_RENDER_URL=http://my-laptop:8787 OUTLOOK_RENDER_TOKEN=...
+export MSOSHOT_URL=http://my-laptop:8787 MSOSHOT_TOKEN=...
 examples/render.sh internal/samples/sample.html outlook.png "Weekly update" "pages=2"
 ```
 

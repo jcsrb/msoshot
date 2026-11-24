@@ -5,8 +5,8 @@
   "RT_MANIFEST": {
     "#1": {
       "0409": {
-        "identity": { "name": "outlook-render", "version": "0.0.0.0" },
-        "description": "outlook-render",
+        "identity": { "name": "msoshot", "version": "0.0.0.0" },
+        "description": "msoshot",
         "minimum-os": "win10",
         "execution-level": "as invoker",
         "ui-access": false,
@@ -31,7 +31,7 @@
         "info": {
           "0409": {
             "FileDescription": "Renders emails in classic Outlook and returns screenshots",
-            "ProductName": "outlook-render",
+            "ProductName": "msoshot",
             
             "LegalCopyright": "MIT License"
           }

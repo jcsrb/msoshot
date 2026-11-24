@@ -10,10 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jcsrb/outlook-render/internal/activity"
-	"github.com/jcsrb/outlook-render/internal/api"
-	"github.com/jcsrb/outlook-render/internal/config"
-	"github.com/jcsrb/outlook-render/internal/render"
+	"github.com/jcsrb/msoshot/internal/activity"
+	"github.com/jcsrb/msoshot/internal/api"
+	"github.com/jcsrb/msoshot/internal/config"
+	"github.com/jcsrb/msoshot/internal/render"
 )
 
 type fixture struct {
@@ -61,7 +61,7 @@ func TestIndexAndStatusHideToken(t *testing.T) {
 	f := newFixture()
 	rec := httptest.NewRecorder()
 	f.h.ServeHTTP(rec, httptest.NewRequest("GET", "/", nil))
-	if rec.Code != 200 || !strings.Contains(rec.Body.String(), "outlook-render") {
+	if rec.Code != 200 || !strings.Contains(rec.Body.String(), "msoshot") {
 		t.Fatalf("index: %d", rec.Code)
 	}
 	rec = httptest.NewRecorder()

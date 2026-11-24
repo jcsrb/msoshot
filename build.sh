@@ -30,8 +30,8 @@ fi
 for arch in amd64 arm64; do
   GOOS=windows GOARCH=$arch CGO_ENABLED=0 \
     go build -tags production -trimpath -buildvcs=false \
-      -ldflags "-H windowsgui -s -w -X github.com/jcsrb/outlook-render/internal/api.Version=$VERSION" \
-      -o "bin/outlook-render-windows-$arch.exe" .
+      -ldflags "-H windowsgui -s -w -X github.com/jcsrb/msoshot/internal/api.Version=$VERSION" \
+      -o "bin/msoshot-windows-$arch.exe" .
 done
 echo "built version $VERSION"
 ls -l bin

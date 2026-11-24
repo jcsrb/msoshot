@@ -12,12 +12,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jcsrb/outlook-render/internal/activity"
-	"github.com/jcsrb/outlook-render/internal/api"
-	"github.com/jcsrb/outlook-render/internal/config"
-	"github.com/jcsrb/outlook-render/internal/eml"
-	"github.com/jcsrb/outlook-render/internal/render"
-	"github.com/jcsrb/outlook-render/internal/samples"
+	"github.com/jcsrb/msoshot/internal/activity"
+	"github.com/jcsrb/msoshot/internal/api"
+	"github.com/jcsrb/msoshot/internal/config"
+	"github.com/jcsrb/msoshot/internal/eml"
+	"github.com/jcsrb/msoshot/internal/render"
+	"github.com/jcsrb/msoshot/internal/samples"
 )
 
 //go:embed index.html

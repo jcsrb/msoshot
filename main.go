@@ -1,4 +1,4 @@
-// outlook-render renders emails in classic Outlook for Windows and returns
+// msoshot renders emails in classic Outlook for Windows and returns
 // screenshots over HTTP. It runs as a tray app with a small dashboard.
 package main
 
@@ -17,25 +17,25 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jcsrb/outlook-render/internal/activity"
-	"github.com/jcsrb/outlook-render/internal/api"
-	"github.com/jcsrb/outlook-render/internal/config"
-	"github.com/jcsrb/outlook-render/internal/dashboard"
-	"github.com/jcsrb/outlook-render/internal/eml"
-	"github.com/jcsrb/outlook-render/internal/listener"
-	"github.com/jcsrb/outlook-render/internal/outlook"
-	"github.com/jcsrb/outlook-render/internal/render"
-	"github.com/jcsrb/outlook-render/internal/ui"
-	"github.com/jcsrb/outlook-render/internal/winconsole"
+	"github.com/jcsrb/msoshot/internal/activity"
+	"github.com/jcsrb/msoshot/internal/api"
+	"github.com/jcsrb/msoshot/internal/config"
+	"github.com/jcsrb/msoshot/internal/dashboard"
+	"github.com/jcsrb/msoshot/internal/eml"
+	"github.com/jcsrb/msoshot/internal/listener"
+	"github.com/jcsrb/msoshot/internal/outlook"
+	"github.com/jcsrb/msoshot/internal/render"
+	"github.com/jcsrb/msoshot/internal/ui"
+	"github.com/jcsrb/msoshot/internal/winconsole"
 )
 
-const usage = `outlook-render %s: renders emails in classic Outlook and returns screenshots.
+const usage = `msoshot %s: renders emails in classic Outlook and returns screenshots.
 
 Usage:
-  outlook-render                 tray app with a dashboard (the normal way to run it)
-  outlook-render --headless      server only, no window or tray; logs to the console
-  outlook-render --check         print what the app can see (Outlook, display, session) and exit
-  outlook-render --render-file email.html out.png [--query "pages=2&wait=2000"]
+  msoshot                 tray app with a dashboard (the normal way to run it)
+  msoshot --headless      server only, no window or tray; logs to the console
+  msoshot --check         print what the app can see (Outlook, display, session) and exit
+  msoshot --render-file email.html out.png [--query "pages=2&wait=2000"]
                                  render one file without the server (.html or .eml)
 
 Options:
@@ -54,7 +54,7 @@ func main() {
 		minimized  = flag.Bool("minimized", false, "start with the window hidden")
 		host       = flag.String("host", "", "IPv4 address to listen on for this run (default: saved setting, initially 127.0.0.1)")
 		port       = flag.Int("port", 0, "port for this run (default: saved setting, initially 8787)")
-		cfgPath    = flag.String("config", "", "config file (default: <user config dir>/outlook-render/config.json)")
+		cfgPath    = flag.String("config", "", "config file (default: <user config dir>/msoshot/config.json)")
 		maxBodyMB  = flag.Int("max-body-mb", 10, "largest accepted request body in MB")
 		version    = flag.Bool("version", false, "print the version and exit")
 	)
@@ -70,7 +70,7 @@ func main() {
 		winconsole.Attach()
 	}
 	if *version {
-		fmt.Println("outlook-render", api.Version)
+		fmt.Println("msoshot", api.Version)
 		return
 	}
 
@@ -129,7 +129,7 @@ func main() {
 	}
 
 	if *headless {
-		fmt.Printf("outlook-render %s listening on %s:%d (config: %s)\n", api.Version, cfg.Host, cfg.Port, path)
+		fmt.Printf("msoshot %s listening on %s:%d (config: %s)\n", api.Version, cfg.Host, cfg.Port, path)
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt)
 		<-sig
@@ -215,13 +215,13 @@ func tooltip(r render.Renderer, lis *listener.Listener) string {
 	h := r.Health()
 	switch {
 	case r.Busy():
-		return "outlook-render: rendering…"
+		return "msoshot: rendering…"
 	case h["ok"] == false && h["error"] != nil:
-		return truncate(fmt.Sprintf("outlook-render: %v", h["error"]), 120)
+		return truncate(fmt.Sprintf("msoshot: %v", h["error"]), 120)
 	case s != "listening":
-		return truncate("outlook-render: "+s, 120)
+		return truncate("msoshot: "+s, 120)
 	default:
-		return "outlook-render: listening on " + addr
+		return "msoshot: listening on " + addr
 	}
 }
 
@@ -257,7 +257,7 @@ func runCheck(r render.Renderer) int {
 
 func runRenderFile(r render.Renderer, args []string, query string) int {
 	if len(args) != 2 {
-		fmt.Fprintln(os.Stderr, "usage: outlook-render --render-file <email.html|email.eml> <out.png> [--query \"pages=2\"]")
+		fmt.Fprintln(os.Stderr, "usage: msoshot --render-file <email.html|email.eml> <out.png> [--query \"pages=2\"]")
 		return 2
 	}
 	in, out := args[0], args[1]
@@ -300,7 +300,7 @@ func runRenderFile(r render.Renderer, args []string, query string) int {
 	return 0
 }
 
-// newLogger writes to <user cache dir>/outlook-render/outlook-render.log, and
+// newLogger writes to <user cache dir>/msoshot/msoshot.log, and
 // also to stderr in console modes. Only metadata is logged, never email
 // content, subjects or the token.
 func newLogger(console bool) *slog.Logger {
@@ -309,9 +309,9 @@ func newLogger(console bool) *slog.Logger {
 		writers = append(writers, os.Stderr)
 	}
 	if dir, err := os.UserCacheDir(); err == nil {
-		dir = filepath.Join(dir, "outlook-render")
+		dir = filepath.Join(dir, "msoshot")
 		if os.MkdirAll(dir, 0o700) == nil {
-			path := filepath.Join(dir, "outlook-render.log")
+			path := filepath.Join(dir, "msoshot.log")
 			if info, err := os.Stat(path); err == nil && info.Size() > 5<<20 {
 				_ = os.Rename(path, path+".old")
 			}

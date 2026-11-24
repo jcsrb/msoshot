@@ -47,3 +47,25 @@ func TestLocalAddresses(t *testing.T) {
 		t.Fatalf("%+v", a)
 	}
 }
+
+func TestMigrate(t *testing.T) {
+	dir := t.TempDir()
+	old := filepath.Join(dir, "old", "config.json")
+	path := filepath.Join(dir, "new", "config.json")
+	if err := os.MkdirAll(filepath.Dir(old), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(old, []byte(`{"token":"x"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	migrate(old, path)
+	if data, _ := os.ReadFile(path); string(data) != `{"token":"x"}` {
+		t.Fatalf("not migrated: %q", data)
+	}
+	// An existing new config is never overwritten.
+	_ = os.WriteFile(old, []byte(`{"token":"y"}`), 0o600)
+	migrate(old, path)
+	if data, _ := os.ReadFile(path); string(data) != `{"token":"x"}` {
+		t.Fatalf("overwritten: %q", data)
+	}
+}

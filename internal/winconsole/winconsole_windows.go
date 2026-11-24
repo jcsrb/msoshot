@@ -13,7 +13,7 @@ import (
 var procAttachConsole = windows.NewLazySystemDLL("kernel32.dll").NewProc("AttachConsole")
 
 // usable reports whether a standard handle already points somewhere real,
-// e.g. "outlook-render --check > out.txt" or a pipe. Those are kept as they are.
+// e.g. "msoshot --check > out.txt" or a pipe. Those are kept as they are.
 func usable(std uint32) bool {
 	h, err := windows.GetStdHandle(std)
 	if err != nil || h == 0 || h == windows.InvalidHandle {

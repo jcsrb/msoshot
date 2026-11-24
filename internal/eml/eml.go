@@ -22,11 +22,11 @@ func Build(html []byte, subject, charset string, date time.Time) []byte {
 		charset = "utf-8"
 	}
 	var b bytes.Buffer
-	fmt.Fprintf(&b, "From: Outlook Render <render@example.com>\r\n")
+	fmt.Fprintf(&b, "From: msoshot <render@example.com>\r\n")
 	fmt.Fprintf(&b, "To: Preview <preview@example.com>\r\n")
 	fmt.Fprintf(&b, "Subject: %s\r\n", mime.QEncoding.Encode("utf-8", oneLine(subject)))
 	fmt.Fprintf(&b, "Date: %s\r\n", date.UTC().Format(time.RFC1123Z))
-	fmt.Fprintf(&b, "Message-ID: <%s@outlook-render.invalid>\r\n", randomID())
+	fmt.Fprintf(&b, "Message-ID: <%s@msoshot.invalid>\r\n", randomID())
 	fmt.Fprintf(&b, "MIME-Version: 1.0\r\n")
 	fmt.Fprintf(&b, "Content-Type: text/html; charset=\"%s\"\r\n", charset)
 	fmt.Fprintf(&b, "Content-Transfer-Encoding: base64\r\n\r\n")

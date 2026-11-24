@@ -40,5 +40,5 @@ jobs:
       - run: ./build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: outlook-render-windows
+          name: msoshot-windows
           path: bin/*.exe
